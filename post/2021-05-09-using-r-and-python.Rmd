@@ -1,0 +1,39 @@
+---
+title: Using R and Python
+author: ''
+date: '2021-05-09'
+slug: using-r-and-python
+categories: []
+tags: []
+description: ''
+---
+
+In this post, we will demonstrate how to use R and python concurrently. 
+
+![](https://rstudio.github.io/reticulate/images/reticulated_python.png)
+
+We will load the flights data set from R, and then use it in python to get some statistics! So first, let's load the flights data set.
+
+```{r}
+library(reticulate)
+library(nycflights13)
+df <- flights
+```
+
+Now that we loaded this data set in R, we can easily use it in python and perform some manipulation to obtain summary statistics. The benefit of this is that this data set does not need to be in python, and we can load any R data set and use it in python this way.
+
+```{python}
+import pandas
+import numpy as np
+import seaborn as sns
+
+# Find the 3 code airport destination with maximum travel time
+r.df.query('air_time==air_time.max()').filter(['dest'])
+```
+
+```{python}
+# Get summary statistics based on month and origin for distance
+r.df.filter(['origin', 'month', 'distance']).groupby(['month', 'origin']).agg(['mean','std','size'])
+```
+
+The ability to share information across R and Python in the same code chunk can be extremely valuable, as certain tool can be more easily perofmed in a certain coding language versus the other.

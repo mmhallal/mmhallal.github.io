@@ -8,23 +8,14 @@
     <language>en-US</language>
     <lastBuildDate>Sun, 09 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Try</title>
-      <link>/post/2021/05/09/try/</link>
+      <title>Using R and Python</title>
+      <link>/post/2021/05/09/using-r-and-python/</link>
       <pubDate>Sun, 09 May 2021 00:00:00 +0000</pubDate>
       
-      <guid>/post/2021/05/09/try/</guid>
-      <description>Link to google</description>
-    </item>
-    
-    <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+      <guid>/post/2021/05/09/using-r-and-python/</guid>
+      <description>In this post, we will demonstrate how to use R and python concurrently.
+We will load the flights data set from R, and then use it in python to get some statistics! So first, let’s load the flights data set.
+library(reticulate) library(nycflights13) df &amp;lt;- flights Now that we loaded this data set in R, we can easily use it in python and perform some manipulation to obtain summary statistics. The benefit of this is that this data set does not need to be in python, and we can load any R data set and use it in python this way.</description>
     </item>
     
   </channel>

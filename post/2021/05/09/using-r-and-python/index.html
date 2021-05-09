@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mohamad Hallal" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Using R and Python</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/2021/05/09/using-r-and-python/">Using R and Python</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         May 9, 2021 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<p>In this post, we will demonstrate how to use R and python concurrently.</p>
+<p><img src="https://rstudio.github.io/reticulate/images/reticulated_python.png" /></p>
+<p>We will load the flights data set from R, and then use it in python to get some statistics! So first, let’s load the flights data set.</p>
+<pre class="r"><code>library(reticulate)
+library(nycflights13)
+df &lt;- flights</code></pre>
+<p>Now that we loaded this data set in R, we can easily use it in python and perform some manipulation to obtain summary statistics. The benefit of this is that this data set does not need to be in python, and we can load any R data set and use it in python this way.</p>
+<pre class="python"><code>import pandas
+import numpy as np
+import seaborn as sns
+
+# Find the 3 code airport destination with maximum travel time
+r.df.query(&#39;air_time==air_time.max()&#39;).filter([&#39;dest&#39;])</code></pre>
+<pre><code>##        dest
+## 151467  HNL</code></pre>
+<pre class="python"><code># Get summary statistics based on month and origin for distance
+r.df.filter([&#39;origin&#39;, &#39;month&#39;, &#39;distance&#39;]).groupby([&#39;month&#39;, &#39;origin&#39;]).agg([&#39;mean&#39;,&#39;std&#39;,&#39;size&#39;])</code></pre>
+<pre><code>##                  distance                   
+##                      mean         std   size
+## month origin                                
+## 1     EWR      962.753563  687.602484   9893
+##       JFK     1234.010916  895.724214   9161
+##       LGA      799.938365  372.484244   7950
+## 2     EWR      958.126386  678.932588   9107
+##       JFK     1226.917112  886.954469   8421
+##       LGA      797.249495  373.565542   7423
+## 3     EWR      978.176296  670.179660  10420
+##       JFK     1245.835104  878.370612   9697
+##       LGA      792.265229  373.122830   8717
+## 4     EWR     1043.598709  715.815097  10531
+##       JFK     1269.751898  888.969521   9218
+##       LGA      784.591889  370.778328   8581
+## 5     EWR     1057.433724  745.949225  10592
+##       JFK     1268.120890  903.693312   9397
+##       LGA      778.614511  369.813534   8807
+## 6     EWR     1095.177592  757.083063  10175
+##       JFK     1265.918813  903.648282   9472
+##       LGA      782.011750  373.209394   8596
+## 7     EWR     1106.180621  752.522177  10475
+##       JFK     1260.214507  900.567599  10023
+##       LGA      776.389269  373.616596   8927
+## 8     EWR     1115.322425  759.571122  10359
+##       JFK     1265.494340  902.019793   9983
+##       LGA      774.878019  373.513358   8985
+## 9     EWR     1092.834660  753.801426   9550
+##       JFK     1278.002582  910.448289   8908
+##       LGA      755.858710  371.654340   9116
+## 10    EWR     1079.862827  737.811153  10104
+##       JFK     1287.824128  904.217445   9143
+##       LGA      759.860610  369.329591   9642
+## 11    EWR     1085.894612  734.874090   9707
+##       JFK     1291.376579  891.539448   8710
+##       LGA      774.042368  369.738315   8851
+## 12    EWR     1097.125680  732.464934   9922
+##       JFK     1301.778264  883.159837   9146
+##       LGA      789.934819  367.279470   9067</code></pre>
+<p>The ability to share information across R and Python in the same code chunk can be extremely valuable, as certain tool can be more easily perofmed in a certain coding language versus the other.</p>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

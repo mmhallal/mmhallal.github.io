@@ -6,7 +6,18 @@
     <description>Recent content on Mohamad Hallal</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Fri, 07 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 09 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Using R and Python</title>
+      <link>/post/2021/05/09/using-r-and-python/</link>
+      <pubDate>Sun, 09 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2021/05/09/using-r-and-python/</guid>
+      <description>In this post, we will demonstrate how to use R and python concurrently.
+We will load the flights data set from R, and then use it in python to get some statistics! So first, let’s load the flights data set.
+library(reticulate) library(nycflights13) df &amp;lt;- flights Now that we loaded this data set in R, we can easily use it in python and perform some manipulation to obtain summary statistics. The benefit of this is that this data set does not need to be in python, and we can load any R data set and use it in python this way.</description>
+    </item>
+    
     <item>
       <title>Project 2: Modeling, Testing, and Predicting</title>
       <link>/project/project2/</link>
