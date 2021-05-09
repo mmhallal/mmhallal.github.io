@@ -5,23 +5,24 @@
     <link>/project/</link>
     <description>Recent content in Projects on Mohamad Hallal</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Project 1: Exploratory Data Analysis</title>
-      <link>/project/project1/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project1/</guid>
-      <description>1. Introduction It is generally agreed that weather, and particularly temperature, affect our residential electricity usage. For example, residents of hot regions generally observe higher electricity bills in the summer, which is driven by increased demand for cooling. In this report, we will examine this association between daily electric consumption and weather conditions in detail. Particularly, we will look at the effects of temperature and rain on daily electric consumption.</description>
-    </item>
-    
+    <language>en-US</language>
+    <lastBuildDate>Fri, 07 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Project 2: Modeling, Testing, and Predicting</title>
       <link>/project/project2/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 07 May 2021 00:00:00 +0000</pubDate>
       
       <guid>/project/project2/</guid>
       <description>1. Introduction Rammed earth construction is an ancient technique using local soils that are compacted and sometimes mixed with chemical stabilizers such as cement to form structural elements. This method has attracted renewed interest throughout the world due to its social, economic, and environmental benefits. Research has shown that the engineering properties of rammed earth are directly related to those of the soil from which it is built. For this reason, we will assess in this report these relationships between the properties of rammed earth and its soil.</description>
+    </item>
+    
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Sun, 04 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>1. Introduction It is generally agreed that weather, and particularly temperature, affect our residential electricity usage. For example, residents of hot regions generally observe higher electricity bills in the summer, which is driven by increased demand for cooling. In this report, we will examine this association between daily electric consumption and weather conditions in detail. Particularly, we will look at the effects of temperature and rain on daily electric consumption.</description>
     </item>
     
   </channel>

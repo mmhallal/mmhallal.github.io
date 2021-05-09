@@ -1,7 +1,7 @@
 ---
 title: 'Project 2: Modeling, Testing, and Predicting'
 author: "Mohamad Hallal (EID: mh53333)"
-date: "5/7/2021"
+date: "2021-05-07"
 output:
   html_document:
     toc: yes
