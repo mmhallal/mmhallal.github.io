@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mohamad Hallal" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2: Modeling, Testing, and Predicting</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="introduction" class="section level2">
+<h2><span style="color:#bf5700">1. Introduction</span></h2>
+<p>Rammed earth construction is an ancient technique using local soils that are compacted and sometimes mixed with chemical stabilizers such as cement to form structural elements. This method has attracted renewed interest throughout the world due to its social, economic, and environmental benefits. Research has shown that the engineering properties of rammed earth are directly related to those of the soil from which it is built. For this reason, we will assess in this report these relationships between the properties of rammed earth and its soil. We will use a dataset that I have gathered from tens of studies in the literature, which includes information from laboratory tests on rammed earth and the soil it was built from. A glimpse of the data is shown below. There are 52 observations and 9 variables. The soil properties include the Liquid Limit <code>LL</code>, which is a measure of how much the soil behaves like a fluid, the Plasticity Index <code>PI</code>, which measures how much the soil expands and shrinks due to water, percentage of Sand in the soil <code>Sand</code>, a binary variable whether the soil is considered sandy or not <code>Sandy</code>, Soil Class <code>Soil_Class</code>, which is a two-letter classification assigned to the soil based on its properties, and finally the ratio of clay to sand in the soil <code>ClaySandRatio</code>. The rammed earth properties include the amount of chemical stabilizers added in percentage of soil weight (if any) <code>Stabilizer</code>, the Strength of rammed earth <code>Strength</code>, and whether it is considered acceptable for construction or not <code>Acceptable</code>. We will assess if the acceptability of rammed earth can be associated with specific soil properties and whether the strength of rammed earth can be predicted from soil properties.</p>
+<pre class="r"><code># Load packages
+library(tidyverse)
+library(sandwich)
+library(lmtest)
+library(plotROC)
+library(glmnet)
+
+# Read soil data
+RE &lt;- read_csv(&quot;RammedEarthData.csv&quot;)
+
+glimpse(RE)</code></pre>
+<pre><code>## Rows: 52
+## Columns: 9
+## $ LL            &lt;dbl&gt; 15.6, 15.4, 26.1, 18.0, 24.8, 34.5, 15.4, 17.3, 22.3, 38.5, 27.0, 27.0, 40.…
+## $ PI            &lt;dbl&gt; 3.1, 4.0, 13.8, 9.7, 13.4, 18.4, 5.3, 7.9, 12.1, 23.3, 10.5, 10.5, 21.0, 21…
+## $ Sand          &lt;dbl&gt; 70.0, 70.0, 70.0, 70.0, 50.0, 40.0, 75.0, 85.0, 80.0, 60.0, 82.0, 82.0, 50.…
+## $ Stabilizer    &lt;dbl&gt; 0.0, 4.5, 0.0, 0.0, 0.0, 0.0, 5.0, 4.5, 5.0, 6.0, 0.0, 12.0, 5.0, 8.0, 5.0,…
+## $ Strength      &lt;dbl&gt; 0.40, 7.79, 0.72, 0.44, 0.55, 0.72, 5.96, 11.01, 5.14, 3.45, 1.18, 9.96, 4.…
+## $ Acceptable    &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, …
+## $ Sandy         &lt;dbl&gt; 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+## $ Soil_Class    &lt;chr&gt; &quot;SM&quot;, &quot;SM&quot;, &quot;SC&quot;, &quot;SM&quot;, &quot;CL&quot;, &quot;CL&quot;, &quot;SM&quot;, &quot;SW&quot;, &quot;SW&quot;, &quot;SC&quot;, &quot;SW&quot;, &quot;SW&quot;, &quot;SC…
+## $ ClaySandRatio &lt;dbl&gt; 0.4, 0.4, 0.4, 0.4, 1.0, 1.5, 0.3, 0.2, 0.3, 0.7, 0.2, 0.2, 1.0, 1.0, 0.5, …</code></pre>
+</div>
+<div id="testing-differences-across-soil-classes" class="section level2">
+<h2><span style="color:#bf5700">2. Testing Differences Across Soil Classes</span></h2>
+<div id="manova" class="section level3">
+<h3><span style="color:#f8971f">2.1 MANOVA</span></h3>
+<p>We will perform a one-way MANOVA testing whether at least one of 5 numeric response variables (<code>LL</code>, <code>PI</code>, <code>Sand</code>, <code>Strength</code>, and <code>ClaySandRatio</code>) differ by Soil Classification <code>Soil_Class</code>. We expect that the soil properties (<code>LL</code>, <code>PI</code>, <code>Sand</code>, and <code>ClaySandRatio</code>) definitely differ for some soil classes, as the soil class is assigned based on these properties. However, it would be interesting to see if the strength of the rammed earth <code>Strength</code> shows difference among soil site class. Based on the summary of results below, significant differences were found for at least one of the soil classes and for at least one of the numeric variables, Pillaitrace=1.46, pseudoF(15,138)=8.8, p&lt;0.0001. Thus next, we will perform univariate ANOVAs to find response(s) showing a mean difference across soil classes.</p>
+<pre class="r"><code># Perform MANOVA
+man &lt;- manova(cbind(LL, PI, Sand, Strength, ClaySandRatio) ~ Soil_Class, data = RE)
+
+summary(man)</code></pre>
+<pre><code>##            Df Pillai approx F num Df den Df    Pr(&gt;F)    
+## Soil_Class  3 1.4626   8.7526     15    138 6.477e-14 ***
+## Residuals  48                                            
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="univariate-anovas" class="section level3">
+<h3><span style="color:#f8971f">2.2 Univariate ANOVAs</span></h3>
+<p>Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, which were found to be different for at least one soil class for all 5 response variables, with p&lt;0.001 for all soil variables (<code>LL</code>, <code>PI</code>, <code>Sand</code>, and <code>ClaySandRatio</code>) and p&lt;0.05 for the rammed earth strength variable (<code>Strength</code>). Thus, as expected, the soil properties definitely differ for at least one soil class, and interestingly, we were able to verify that the strength of rammed earth also differs for at least one site class. This supports the idea in the literature that the engineering properties of rammed earth are directly related to those of the soil from which it is built, and that some soil classes are preferred for rammed earth construction. Next, we will perform post-hoc t tests to find which soil classes differ.</p>
+<pre class="r"><code>summary.aov(man)</code></pre>
+<pre><code>##  Response LL :
+##             Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Soil_Class   3 1540.6  513.53  13.118 2.215e-06 ***
+## Residuals   48 1879.1   39.15                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response PI :
+##             Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Soil_Class   3 1314.83  438.28  25.916 4.091e-10 ***
+## Residuals   48  811.74   16.91                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response Sand :
+##             Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Soil_Class   3 26675.1  8891.7  97.387 &lt; 2.2e-16 ***
+## Residuals   48  4382.5    91.3                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response Strength :
+##             Df Sum Sq Mean Sq F value  Pr(&gt;F)  
+## Soil_Class   3  68.35  22.782  3.2361 0.03022 *
+## Residuals   48 337.92   7.040                  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response ClaySandRatio :
+##             Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Soil_Class   3  136.6  45.532  12.706 3.092e-06 ***
+## Residuals   48  172.0   3.583                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="post-hoc-t-tests" class="section level3">
+<h3><span style="color:#f8971f">2.3 Post-Hoc t Tests</span></h3>
+<p>Post hoc analysis was performed conducting pairwise comparisons to determine which Soil Classes differed in each variable. A discussion of the total number of tests and significance of the results is presented hereafter.</p>
+<pre class="r"><code>pairwise.t.test(RE$LL, RE$Soil_Class, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  RE$LL and RE$Soil_Class 
+## 
+##    CL      SC     SM    
+## SC 0.0080  -      -     
+## SM 2.3e-06 0.0082 -     
+## SW 3.4e-05 0.0183 0.9166
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(RE$PI, RE$Soil_Class, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  RE$PI and RE$Soil_Class 
+## 
+##    CL      SC      SM  
+## SC 0.95    -       -   
+## SM 4.8e-09 1.7e-08 -   
+## SW 2.6e-06 4.7e-06 0.61
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(RE$Sand, RE$Soil_Class, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  RE$Sand and RE$Soil_Class 
+## 
+##    CL      SC     SM    
+## SC &lt; 2e-16 -      -     
+## SM &lt; 2e-16 0.0923 -     
+## SW 2.4e-16 0.0056 0.1809
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(RE$ClaySandRatio, RE$Soil_Class, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  RE$ClaySandRatio and RE$Soil_Class 
+## 
+##    CL      SC      SM     
+## SC 8.4e-06 -       -      
+## SM 3.0e-05 0.83351 -      
+## SW 0.00025 0.76353 0.90819
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(RE$Strength, RE$Soil_Class, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  RE$Strength and RE$Soil_Class 
+## 
+##    CL    SC    SM   
+## SC 0.034 -     -    
+## SM 0.028 0.742 -    
+## SW 0.020 0.439 0.641
+## 
+## P value adjustment method: none</code></pre>
+</div>
+<div id="discussion" class="section level3">
+<h3><span style="color:#f8971f">2.4 Discussion</span></h3>
+<p>In this section, we have performed 1 MANOVA, 5 ANOVAs, and 30 t-tests, which resulted in a total of 36 tests. Across this whole set of tests, the probability that we made at least one type I error is 0.842 (1 - 0.95^36), and thus a bonferroni adjusted significance level of 0.05/36 = 0.0014 should be used. Interestingly, based on this new adjusted significance level, the last post-hoc t test, which tests if there is difference in the strength of rammed earth for different soil classes, shows that there is no significant difference, which is contrary to the general belief in the literature. Some of the soil properties remain significantly different for some soil classes, such as <code>Sand</code>, for which soil group CL (which is a clayey soil, hence the first letter C), is significantly different than soil classes SC, SM, and SW (all of which are sandy, hence the first letter S).</p>
+<p>MANOVA makes plenty of assumptions, which are rarely met in practice. In particular, MANOVA assumes multivariate normality of variables, which is likely not met here. In addition, MANOVA assumes homogeneity of within-group covariance matrices, meaning that there is equal variance for dependent variables within each group and equal covariance between any two dependent variables; this again is very likely not met here. Other assumptions exist, but we will limit the discussion for brevity.</p>
+</div>
+</div>
+<div id="randomization-test" class="section level2">
+<h2><span style="color:#bf5700">3. Randomization Test</span></h2>
+<p>An interesting result from the previous section was that there is no significant difference in the strength of rammed earth among different soil classes. So we will explore this in greater depth herein using a randomization test. We will test if there is a significant difference in the mean strength of rammed earth built from sandy soils (<code>Sandy</code> = 1) and clayey/non-sandy soils (<code>Sandy</code> = 0). The general belief in the literature is that sandy soils are better and would give a higher rammed earth strength, but recent studies have challenged this. Our test statistic is the mean strength difference between sandy and non-sandy soils. The null hypothesis is that there is no significant difference in the mean strength between sandy and non-sandy soils, and the alternative hypothesis is that there is.</p>
+<p>We will perform the same randomization test on two subsets of our data: (1) samples without an additive stabilizer/cement (<code>Stabilizer</code> = 0), and (2) those with a stabilizer (<code>Stabilizer</code> &gt; 0), simply because the addition of stabilizers is believed to have a different effect on sandy and clayey soils. The resulting null distribution from randomization and the test statistic are potted below. Based on the randomization results, we conclude that the rammed earth strength between sandy and clayey soils is not significantly different for samples without a stabilizer (p-value = 0.743), but it is significantly different for samples with stabilizer (p-value &lt; 0.05). Thus, this suggests that future research should distinguish between stabilized and unstabilized rammed earth when assessing the effect of soil type.</p>
+<pre class="r"><code># (1) Samples with no cement/stabilizer
+# Set seed so that results don&#39;t change
+set.seed(348)
+
+# Get actual difference in mean strength
+actual_diff &lt;- RE %&gt;% filter(Stabilizer == 0) %&gt;% summarize(mean(Strength[Sandy == 1]) - mean(Strength[Sandy == 0])) %&gt;% pull
+
+diffs &lt;- vector()
+
+# Randomize 5000 times and get a difference each time
+for (i in 1:5000) {
+    temp &lt;- RE %&gt;% filter(Stabilizer == 0) 
+    temp &lt;- temp %&gt;% mutate(Sandy = sample(temp$Sandy))
+    diffs[i] &lt;- temp %&gt;% summarize(mean(Strength[Sandy == 1]) - mean(Strength[Sandy == 0])) %&gt;% pull
+}
+
+mean(diffs &gt; abs(actual_diff) | diffs &lt; -abs(actual_diff))</code></pre>
+<pre><code>## [1] 0.743</code></pre>
+<pre class="r"><code># Visualize
+data.frame(diffs) %&gt;% ggplot(aes(diffs)) + geom_histogram(aes(y=..density..)) + 
+  geom_vline(xintercept = c(-abs(actual_diff), abs(actual_diff)), color = &quot;red&quot;, linetype = 2) +
+  labs( x = &quot;Mean Strength Difference&quot;, y = &quot;Density&quot;, color = element_blank()) + 
+  ggtitle(&#39;Null Distribution and Test Statistic for Stabilizer = 0&#39;) + theme_bw()</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># (2) Samples with cement/stabilizer
+# Set seed so that results don&#39;t change
+set.seed(348)
+
+# Get actual difference in mean strength
+actual_diff &lt;- RE %&gt;% filter(Stabilizer &gt; 0) %&gt;% summarize(mean(Strength[Sandy == 1]) - mean(Strength[Sandy == 0])) %&gt;% pull
+
+diffs &lt;- vector()
+
+# Randomize 5000 times and get a difference each time
+for (i in 1:5000) {
+    temp &lt;- RE %&gt;% filter(Stabilizer &gt; 0) 
+    temp &lt;- temp %&gt;% mutate(Sandy = sample(temp$Sandy))
+    diffs[i] &lt;- temp %&gt;% summarize(mean(Strength[Sandy == 1]) - mean(Strength[Sandy == 0])) %&gt;% pull
+}
+
+mean(diffs &gt; abs(actual_diff) | diffs &lt; -abs(actual_diff))</code></pre>
+<pre><code>## [1] 0.0016</code></pre>
+<pre class="r"><code># Visualize
+data.frame(diffs) %&gt;% ggplot(aes(diffs)) + geom_histogram(aes(y=..density..)) + 
+  geom_vline(xintercept = c(-abs(actual_diff), abs(actual_diff)), color = &quot;red&quot;, linetype = 2) +
+  labs( x = &quot;Mean Strength Difference&quot;, y = &quot;Density&quot;, color = element_blank()) + 
+  ggtitle(&#39;Null Distribution and Test Statistic for Stabilizer &gt; 0&#39;) + theme_bw()</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-2.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="linear-regression-model" class="section level2">
+<h2><span style="color:#bf5700">4. Linear Regression Model</span></h2>
+<div id="fitted-model" class="section level3">
+<h3><span style="color:#f8971f">4.1 Fitted Model</span></h3>
+<p>In this section, we will build a linear regression model predicting rammed earth strength (<code>Strength</code>, numeric) from whether soil is sandy or not (<code>Sandy</code>, dummy variable), the stabilizer/cement content (<code>Stabilizer</code>, numeric), and their interaction. The reason for this model selection is because we observed in the randomization test that there is a significant effect of the stabilizer content, but which depends on whether the soil is sandy or not. The interpretation of the regression coefficients is as follows:</p>
+<p><span style="color:#bf5700">Intercept:</span> Predicted rammed earth strength for an average stabilizer content, non-sandy soil is 3.203</p>
+<p><span style="color:#bf5700">Sandy:</span> In samples with average stabilizer content, strength is 2.003 higher for sandy compared to non-sandy soils</p>
+<p><span style="color:#bf5700">Stabilizer_c:</span> For every 1-unit increase in stabilizer content, predicted predicted strength increases by approximately 0.333, on average</p>
+<p><span style="color:#bf5700">Sandy:Stabilizer_c:</span> The slope for <code>Stabilizer</code> on <code>Strength</code> is 0.392 greater for sandy soils compared to non-sandy soils</p>
+<pre class="r"><code># Mean center stabilizer
+RE$Stabilizer_c &lt;- RE$Stabilizer - mean(RE$Stabilizer)
+
+# Linear model predicting strength from whether soil is sandy or not, stabilizer content, and their interaction
+fit &lt;- lm(Strength ~ Sandy * Stabilizer_c, data = RE)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Strength ~ Sandy * Stabilizer_c, data = RE)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2.4908 -0.7189 -0.1752  0.2620  6.4454 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         3.20318    0.27737  11.549 1.85e-15 ***
+## Sandy               2.00241    0.39226   5.105 5.64e-06 ***
+## Stabilizer_c        0.33276    0.05456   6.099 1.77e-07 ***
+## Sandy:Stabilizer_c  0.39187    0.09360   4.187  0.00012 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.414 on 48 degrees of freedom
+## Multiple R-squared:  0.7637, Adjusted R-squared:  0.7489 
+## F-statistic: 51.71 on 3 and 48 DF,  p-value: 4.538e-15</code></pre>
+<p>The plot of the linear regression model is shown below. The vertical distance between the two regression lines at the dashed black line is the coefficient <code>Sandy</code> in the linear regression model. Based on the regression results above, the proportion of the variation in the outcome explained by the model is 0.764.</p>
+<pre class="r"><code># Plot regression with dashed vertical line of mean stabilizer content
+RE %&gt;% ggplot(aes(Stabilizer, Strength, color = as.character(Sandy))) + 
+  geom_smooth(method = &quot;lm&quot;, se = F, fullrange = T) +
+  geom_point() + labs(color = &#39;Sandy Soil&#39;) +
+  geom_vline(xintercept=mean(RE$Stabilizer), lty=2) + 
+  ggtitle(&#39;Linear Model Predicting Strength from Sandy and Stabilizer Content&#39;) + theme_bw()</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-7-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="checking-assumptions" class="section level3">
+<h3><span style="color:#f8971f">4.2 Checking Assumptions</span></h3>
+<p>In this section, we will visually and formally test the assumptions of the linear regression. First, based on the scatter plot below, it appears that linearity is met as the plot shows no curvy trends in the residuals. Second, we will perform a Kolmogorov-Smirnov and Shapiro-Wilk test to formally test for normality. Based on the test results below, the p-value is not significant (p-value 0.056) for the KS test but it is significant (p-value &lt; 0.001) for the SW test. Based on a visual inspection, it is likely that the residuals are not normally distributed. Third, we will run the Breuch-Pagan test to formally test whether homoskedasticity is met. Based on the Breusch-Pagan test, the p-value is not significant (p-value = 0.47), and thus there is no evidence against the null hypothesis and we conclude that homoskedasticity is met.</p>
+<pre class="r"><code># Test Linearity
+resids &lt;- fit$residuals
+fitvals &lt;- fit$fitted.values
+ggplot() + geom_point(aes(fitvals,resids)) +
+  geom_hline(yintercept=0, color=&#39;red&#39;) +
+  ggtitle(&#39;Linearity Assumption Check&#39;) + theme_bw() +
+  labs( x = &quot;Predicted Strength&quot;, y = &quot;Residuals&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Test normality
+ks.test(resids, &quot;pnorm&quot;, sd=sd(resids))</code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  resids
+## D = 0.18211, p-value = 0.05562
+## alternative hypothesis: two-sided</code></pre>
+<pre class="r"><code>shapiro.test(resids)</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resids
+## W = 0.82845, p-value = 2.96e-06</code></pre>
+<pre class="r"><code>ggplot()+geom_histogram(aes(resids), bins=15) + 
+  ggtitle(&#39;Normality Assumption Check&#39;) + theme_bw() +
+  labs( x = &quot;Residuals&quot;, y = &quot;Count&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-8-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Test  homoskedasticity
+bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 2.5487, df = 3, p-value = 0.4666</code></pre>
+</div>
+<div id="regression-with-robust-standard-errors" class="section level3">
+<h3><span style="color:#f8971f">4.3 Regression with Robust Standard Errors</span></h3>
+<p>Because we concluded that homoskedasticity is met, regression with robust standard errors is not expected to cause significant changes. Based on the results below, the standard errors show very minor changes (less than 0.02) except for the Intercept. For example, using heteroskedasticity robust standard errors results in lower standard errors for the interaction term, and consequently higher t-statistic and lower p-value. The significance of all coefficients remains unaffected, which is expected.</p>
+<pre class="r"><code># Regression with Robust Standard Errors
+coeftest(fit, vcov = vcovHC(fit))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                    Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)        3.203183   0.175551 18.2465 &lt; 2.2e-16 ***
+## Sandy              2.002408   0.404987  4.9444 9.741e-06 ***
+## Stabilizer_c       0.332760   0.057397  5.7976 5.102e-07 ***
+## Sandy:Stabilizer_c 0.391874   0.084674  4.6280 2.825e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># Original SEs for comparison
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Strength ~ Sandy * Stabilizer_c, data = RE)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2.4908 -0.7189 -0.1752  0.2620  6.4454 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         3.20318    0.27737  11.549 1.85e-15 ***
+## Sandy               2.00241    0.39226   5.105 5.64e-06 ***
+## Stabilizer_c        0.33276    0.05456   6.099 1.77e-07 ***
+## Sandy:Stabilizer_c  0.39187    0.09360   4.187  0.00012 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.414 on 48 degrees of freedom
+## Multiple R-squared:  0.7637, Adjusted R-squared:  0.7489 
+## F-statistic: 51.71 on 3 and 48 DF,  p-value: 4.538e-15</code></pre>
+</div>
+<div id="regression-with-bootstrapped-standard-errors" class="section level3">
+<h3><span style="color:#f8971f">4.4 Regression with Bootstrapped Standard Errors</span></h3>
+<p>Next, we will run regression with bootsrapped standard errors by resampling observations. This might be helpful in this case because the normality assumption was found to be violated. The SEs from bootstrapping is the lowest for the Intercept, in between those of the original SEs and the robust SEs for Sandy, the lowest for Stabilizer_c, and the lowest for the interaction term. Smaller standard errors result in higher t-statistics and consequently lower/more significant p-values. However, because the p-values are all significant (&lt;0.001) for the original SEs, they remain significant here as well.</p>
+<pre class="r"><code># Set Seed
+set.seed(348)
+
+# Resample Observations
+samp_distn &lt;- replicate(5000, {
+    boot_dat &lt;- sample_frac(RE, replace = T)  #take bootstrap sample of rows  
+    fit &lt;- lm(Strength ~ Sandy * Stabilizer_c, data = boot_dat)  #fit model on bootstrap sample  
+    coef(fit)  #save coefs
+})
+
+# Estimated SEs
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)    Sandy Stabilizer_c Sandy:Stabilizer_c
+## 1   0.1655029 0.401602   0.04662094         0.08022176</code></pre>
+</div>
+</div>
+<div id="logistic-regression-model" class="section level2">
+<h2><span style="color:#bf5700">5. Logistic Regression Model</span></h2>
+<div id="coefficient-interpretation" class="section level3">
+<h3><span style="color:#f8971f">5.1 Coefficient Interpretation</span></h3>
+<p>In this section, we will fit a logistic regression model predicting whether the rammed earth was found to be acceptable for construction (<code>Acceptable</code>, binary) from the same explanatory variables we used in the linear model (<code>Sandy</code>, binary, and <code>Stabilizer</code>, numeric) but without interaction. The interpretation of the regression coefficients is as follows:</p>
+<p><span style="color:#bf5700">Intercept:</span> The predicted odds of being acceptable for construction for non-sandy unstabilized soils is 0.0005 (too low!)</p>
+<p><span style="color:#bf5700">Sandy:</span> The odds ratio of being acceptable for construction for sandy soils compared to non-sandy soils is approximately 22.878</p>
+<p><span style="color:#bf5700">Stabilizer:</span> For every 1-unit increase in stabilizer content, the predicted odds of being acceptable for construction multiples by approximately 2.975</p>
+<pre class="r"><code># Logistic Regression
+fit &lt;- glm(Acceptable ~ Sandy + Stabilizer, data = RE, family = &quot;binomial&quot;, maxit=100)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Acceptable ~ Sandy + Stabilizer, family = &quot;binomial&quot;, 
+##     data = RE, maxit = 100)
+## 
+## Deviance Residuals: 
+##      Min        1Q    Median        3Q       Max  
+## -1.66409  -0.14895  -0.01502   0.27707   2.13645  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)   
+## (Intercept)  -7.6261     2.7337  -2.790  0.00528 **
+## Sandy         3.1302     1.2509   2.502  0.01234 * 
+## Stabilizer    1.0903     0.3855   2.829  0.00467 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 72.087  on 51  degrees of freedom
+## Residual deviance: 25.832  on 49  degrees of freedom
+## AIC: 31.832
+## 
+## Number of Fisher Scoring iterations: 7</code></pre>
+<pre class="r"><code># Take exp of coefficients to interpret
+coef(fit) %&gt;% exp %&gt;% round(5) %&gt;% data.frame</code></pre>
+<pre><code>##                    .
+## (Intercept)  0.00049
+## Sandy       22.87813
+## Stabilizer   2.97517</code></pre>
+</div>
+<div id="confusion-matrix" class="section level3">
+<h3><span style="color:#f8971f">5.2 Confusion Matrix</span></h3>
+<p>The confusion matrix, which shows model predictions versus true outcomes, is shown below. It appears that the model does a very good job distinguishing acceptable soils from those that are unacceptable for construction based on whether the soil is sandy or not and the amount of stabilizer added. Overall, the model correctly classifies 22 samples that are unacceptable and 24 samples that are acceptable, out of 26 for each.</p>
+<pre class="r"><code>prob &lt;- predict(fit, data = RE, type = &quot;response&quot;)
+
+# Get Confusion Matrix
+table(Pred=ifelse(prob&gt;0.5,1,0), Truth=RE$Acceptable) %&gt;% addmargins</code></pre>
+<pre><code>##      Truth
+## Pred   0  1 Sum
+##   0   22  2  24
+##   1    4 24  28
+##   Sum 26 26  52</code></pre>
+</div>
+<div id="diagnostics" class="section level3">
+<h3><span style="color:#f8971f">5.3 Diagnostics</span></h3>
+<p>Based on the diagnostics below, the accuracy of our model is 0.885. meaning that 88.5% of the cases are correctly classified as acceptable or unacceptable. The sensitivity is 0.923, meaning that 92.3% of acceptable soils are correctly classified. The specificity is 0.846, meaning that 84.6% of unacceptable soils are correctly specified. The precision is 0.857, meaning that 85.7% of soils classified acceptable are actually acceptable. Finally, the AUC is 0.959, which quantifies how well we are predicting overall, and this value is &gt;0.9, which is considered a great prediction.</p>
+<pre class="r"><code>#Accuracy, Sensitivity (TPR), Specificity (TNR), Precision (PPV), and AUC
+class_diag(prob, RE$Acceptable)</code></pre>
+<pre><code>##       Acc    Sens    Spec     PPV     AUC
+## 1 0.88462 0.92308 0.84615 0.85714 0.95932</code></pre>
+</div>
+<div id="density-plot" class="section level3">
+<h3><span style="color:#f8971f">5.4 Density Plot</span></h3>
+<p>A density plot of the log-odds (logit) colored/grouped by the binary outcome variable <code>Acceptable</code> is shown below. Because there is an overlap in the densities, there will be tradeoff between different metrics based on the selected cutoff value for prediction.</p>
+<pre class="r"><code>RE$logit &lt;- predict(fit, data = RE) #save predicted log-odds
+
+RE %&gt;% ggplot(aes(logit, fill=as.character(Acceptable))) + 
+  geom_density(alpha=.4) + 
+  geom_vline(xintercept=0,lty=2) + theme_bw() +
+  labs( x = &quot;Log Odds&quot;, y = &quot;Density&quot;, fill = &#39;Acceptable&#39;) + 
+  ggtitle(&#39;Density Plot of Log Odds from Prediction Model&#39;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="roc-curve" class="section level3">
+<h3><span style="color:#f8971f">5.5 ROC Curve</span></h3>
+<p>The ROC curve is shown below and the AUC value is calculated below using a different method (same answer as before). As previously mentioned, the AUC is 0.959, which is considered a great prediction (&gt;0.9).</p>
+<pre class="r"><code>ROCplot &lt;- ggplot(RE) + geom_roc(aes(d = Acceptable, m = prob), n.cuts = 0) + theme_bw() +
+  labs( x = &quot;False Positive Fraction&quot;, y = &quot;True Positive Fraction&quot;) + 
+  ggtitle(&#39;ROC Curve&#39;)
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-15-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.9593195</code></pre>
+</div>
+</div>
+<div id="logistic-regression-model-with-all-variables" class="section level2">
+<h2><span style="color:#bf5700">6. Logistic Regression Model with All Variables</span></h2>
+<div id="full-prediction" class="section level3">
+<h3><span style="color:#f8971f">6.1 Full Prediction</span></h3>
+<p>In this section, we will make predictions using all soil variables to see if we can distinguish acceptable from unacceptable rammed earth based on different soil properties. There are 7 different soil variables (5 numeric, 1 binary, and 1 categorical). The resulting model has an AUC of 0.987, which implies great prediction. This is not surprising given that we included many variables.</p>
+<pre class="r"><code># Only keep soil variables and the binary outcome variable Acceptable
+RE &lt;- RE %&gt;% select(-logit, -Strength, -Stabilizer_c)
+
+# Prediction from all variables
+fit &lt;- glm(Acceptable ~ ., data = RE, family = &quot;binomial&quot;, maxit=100)
+prob &lt;- predict(fit, data = RE, type = &quot;response&quot;)
+class_diag(prob, RE$Acceptable)</code></pre>
+<pre><code>##       Acc    Sens    Spec     PPV     AUC
+## 1 0.90385 0.92308 0.88462 0.88889 0.98669</code></pre>
+</div>
+<div id="cross-validation" class="section level3">
+<h3><span style="color:#f8971f">6.2 Cross Validation</span></h3>
+<p>Based on a 10-fold cross validation, all metric have decreased, indicating worse model prediction and overfitting. Particularly, AUC decreased from 0.987 to 0.863, which although still indicates a good prediction on average, clearly is a sign of overfitting when using all variables.</p>
+<pre class="r"><code>set.seed(1234)
+k = 10 #choose number of folds
+
+data1 &lt;- RE[sample(nrow(RE)),] #randomly order rows
+folds &lt;- cut(seq(1:nrow(RE)),breaks=k,labels=F) #create 10 folds
+
+diags&lt;-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train &lt;- data1[folds!=i,]
+  test &lt;- data1[folds==i,]
+  truth &lt;- test$Acceptable
+  
+  ## Train model on training set
+  fit&lt;-glm(Acceptable~(.), data=train, family=&quot;binomial&quot;, maxit=100)  
+  probs&lt;-predict(fit, newdata = test, type=&quot;response&quot;)
+  
+  ## Test model on test set (save all k results)
+  diags &lt;- rbind(diags,class_diag(probs,truth))
+}
+
+diags %&gt;% summarize_all(mean)</code></pre>
+<pre><code>##        Acc     Sens     Spec      PPV      AUC
+## 1 0.833333 0.816667 0.833334 0.875001 0.863194</code></pre>
+</div>
+<div id="lasso" class="section level3">
+<h3><span style="color:#f8971f">6.3 LASSO</span></h3>
+<p>Because we observed overfitting, we will perform LASSO to select only variables that are of interest and enhance prediction accuracy. The results below show that the retained variables are the sand content in the soil (<code>Sand</code>, numeric), the stabilizer content added (<code>Stabilizer</code>, numeric), and whether the soil is sandy or not (<code>Sandy</code>, binary). All other variables, such as soil class, LL, and PI were dropped.</p>
+<pre class="r"><code>set.seed(1234)
+
+fit &lt;- glm(Acceptable~(.), data=RE, family=&quot;binomial&quot;)
+RE1 &lt;- model.matrix(fit)
+
+x &lt;- RE1[,-1] # grab response
+
+y &lt;- as.matrix(RE$Acceptable) # grab predictors 
+
+cv.lasso1 &lt;- cv.glmnet(x, y, family=&quot;binomial&quot;)
+lasso1 &lt;- glmnet(x, y, family=&quot;binomial&quot;, alpha=1, lambda=cv.lasso1$lambda.1se)
+coef(lasso1)</code></pre>
+<pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                         s0
+## (Intercept)   -2.412196859
+## LL             .          
+## PI             .          
+## Sand           0.004708248
+## Stabilizer     0.356966749
+## Sandy          0.507896053
+## Soil_ClassSC   .          
+## Soil_ClassSM   .          
+## Soil_ClassSW   .          
+## ClaySandRatio  .</code></pre>
+<pre class="r"><code># Form new data set
+RE_new &lt;- RE %&gt;% select(Sand, Stabilizer, Sandy, Acceptable)</code></pre>
+</div>
+<div id="cross-validation-with-lasso-variables" class="section level3">
+<h3><span style="color:#f8971f">6.4 Cross Validation with LASSO Variables</span></h3>
+<p>Finally, we will perform cross validation using the LASSO variables. First, the new prediction using all data but only LASSO variables has an AUC of 0.95. After performing a 10-fold cross validation, the AUC remains mostly unchanged, with a mean value of 0.949. The predictions both from all observations and the cross validation are both great and there is no sign of overfitting. Both AUC values are slightly less than that of the full model with all observations (0.987), but the model herein is preferred, especially for out-of-sample predictions.</p>
+<pre class="r"><code># Prediction from LASSO variables
+fit &lt;- glm(Acceptable ~ ., data = RE_new, family = &quot;binomial&quot;, maxit=100)
+prob &lt;- predict(fit, data = RE_new, type = &quot;response&quot;)
+class_diag(prob, RE_new$Acceptable)</code></pre>
+<pre><code>##       Acc    Sens    Spec     PPV    AUC
+## 1 0.88462 0.92308 0.84615 0.85714 0.9497</code></pre>
+<pre class="r"><code># Cross Validation
+set.seed(1234)
+k = 10 #choose number of folds
+
+data1 &lt;- RE_new[sample(nrow(RE_new)),] #randomly order rows
+folds &lt;- cut(seq(1:nrow(RE_new)),breaks=k,labels=F) #create 10 folds
+
+diags&lt;-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train &lt;- data1[folds!=i,]
+  test &lt;- data1[folds==i,]
+  truth &lt;- test$Acceptable
+  
+  ## Train model on training set
+  fit&lt;-glm(Acceptable~(.), data=train, family=&quot;binomial&quot;, maxit=100)  
+  probs&lt;-predict(fit, newdata = test, type=&quot;response&quot;)
+  
+  ## Test model on test set (save all k results)
+  diags &lt;- rbind(diags,class_diag(probs,truth))
+}
+
+diags %&gt;% summarize_all(mean)</code></pre>
+<pre><code>##        Acc     Sens Spec      PPV      AUC
+## 1 0.853334 0.891667  0.8 0.876667 0.948611</code></pre>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

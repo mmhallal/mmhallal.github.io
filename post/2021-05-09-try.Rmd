@@ -1,0 +1,11 @@
+---
+title: Try
+author: ''
+date: '2021-05-09'
+slug: try
+categories: []
+tags: []
+description: ''
+---
+
+[Link to google](https://www.google.com)
